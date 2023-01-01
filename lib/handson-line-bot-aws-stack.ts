@@ -21,6 +21,7 @@ export class HandsonLineBotAwsStack extends Stack {
       encryption: BucketEncryption.UNENCRYPTED,
       publicReadAccess: true,
       removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
     });
     
     // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_dynamodb.Table.html
