@@ -4,7 +4,10 @@ const AWS = require('aws-sdk');
 const line = require('@line/bot-sdk');
 const crypto = require("crypto");
 
-const s3 = new AWS.S3({'region':'ap-northeast-1'});
+const s3 = new AWS.S3();
+
+// https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html
+const documentClient = new AWS.DynamoDB.DocumentClient();
 
 // https://github.com/line/line-bot-sdk-nodejs/blob/next/examples/echo-bot/index.js
 // create LINE SDK config from env variables
@@ -67,6 +70,7 @@ export const handler = (event) => {
 
 const eventHandler = async (event) => {
   const userId = event.source.userId;
+  
   if (event.type !== 'message' && event.type !== 'postback') {
     // ignore non-text-message event
     return Promise.resolve(null);
@@ -182,6 +186,35 @@ const eventHandler = async (event) => {
       longitude: event.message.longitude
     });
   }
+
+
+
+/*
+
+  let scanParams = {
+      TableName: 'Table1',
+      ExpressionAttributeNames:{
+          '#u': 'userId'
+      },
+      ExpressionAttributeValues:{
+          ':userId': userId
+      },
+      KeyConditionExpression: '#u = :userId'
+  };
+  let scanResult = await documentClient.query(scanParams).promise();
+
+  let putParams = {
+      TableName: 'Table1',
+      Item:{
+           userId: userId,
+           category: 'カテゴリー３'
+      }
+  };
+  let putResult = await documentClient.put(putParams).promise();
+
+*/
+
+
 
   // create a echoing text message
   const echo = { type: 'text', text: event.message.text };

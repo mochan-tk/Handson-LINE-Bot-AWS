@@ -4,6 +4,7 @@ import { Bucket, BlockPublicAccess, BucketEncryption } from "aws-cdk-lib/aws-s3"
 import { PolicyStatement, Effect, AnyPrincipal } from "aws-cdk-lib/aws-iam";
 import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
 import { Runtime, FunctionUrlAuthType, HttpMethod } from "aws-cdk-lib/aws-lambda";
+import { Table, AttributeType } from "aws-cdk-lib/aws-dynamodb";
 
 export class HandsonLineBotAwsStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -19,6 +20,16 @@ export class HandsonLineBotAwsStack extends Stack {
       }),
       encryption: BucketEncryption.UNENCRYPTED,
       publicReadAccess: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+    });
+    
+    // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_dynamodb.Table.html
+    const dynamodbTable = new Table(this, "Table", {
+      partitionKey: {
+        name: "userId",
+        type: AttributeType.STRING
+      },
+      tableName: "Table1",
       removalPolicy: RemovalPolicy.DESTROY,
     });
     
@@ -44,6 +55,7 @@ export class HandsonLineBotAwsStack extends Stack {
         MSG_CHANNEL_ACCESS_TOKEN: this.node.tryGetContext('MSG_CHANNEL_ACCESS_TOKEN'),
         BUCKET_NAME: s3Bucket.bucketName,
         BUCKET_DOMAIN_NAME: s3Bucket.bucketRegionalDomainName,
+        TABLE_NAME: dynamodbTable.tableName
       },
     });
     
@@ -59,6 +71,10 @@ export class HandsonLineBotAwsStack extends Stack {
     new CfnOutput(this, 'FunctionUrl', {
       value: lambdaURLs.url,
     });
+
+    // Add authority FullAccess
+    // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_dynamodb.Table.html#grantwbrfullwbraccessgrantee
+    dynamodbTable.grantFullAccess(lambdaFunction); 
 
   }
 }
