@@ -49,6 +49,9 @@ export class HandsonLineBotAwsStack extends Stack {
       entry: 'app/index.js', // accepts .js, .jsx, .ts, .tsx and .mjs files
       handler: 'handler', // defaults to 'handler'
       depsLockFilePath: 'app/package-lock.json',
+      bundling: {
+        nodeModules: ["@line/bot-sdk"],
+      },
       runtime: Runtime.NODEJS_16_X,
       timeout: Duration.seconds(30),
       environment: {
